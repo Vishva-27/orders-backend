@@ -29,3 +29,7 @@ logging:
   level:
     com.ecommerce.orders: DEBUG
     org.springframework.security: INFO
+
+jobs:
+  order-processing:
+    fixed-rate: 300000

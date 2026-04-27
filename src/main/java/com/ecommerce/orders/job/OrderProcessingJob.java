@@ -18,7 +18,7 @@ public class OrderProcessingJob {
 
     private final OrderRepository orderRepository;
 
-    @Scheduled(fixedRate = 300000) // 5 minutes in milliseconds
+    @Scheduled(fixedRateString = "${jobs.order-processing.fixed-rate}")
     @Transactional
     public void processPendingOrders() {
         log.info("Starting order processing job to update PENDING orders");
