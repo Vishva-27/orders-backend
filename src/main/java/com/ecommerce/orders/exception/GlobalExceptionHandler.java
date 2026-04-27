@@ -42,6 +42,26 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, ex.getStatusCode());
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadableException(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        
+        String errorMsg = "Malformed JSON request or invalid parameter value";
+        if (ex.getCause() instanceof com.fasterxml.jackson.databind.exc.InvalidFormatException) {
+            com.fasterxml.jackson.databind.exc.InvalidFormatException ife = (com.fasterxml.jackson.databind.exc.InvalidFormatException) ex.getCause();
+            if (ife.getTargetType() != null && ife.getTargetType().isEnum()) {
+                errorMsg = String.format("Invalid enum value: '%s'. Allowed values are: %s",
+                        ife.getValue(),
+                        java.util.Arrays.toString(ife.getTargetType().getEnumConstants()));
+            }
+        }
+        
+        response.put("error", errorMsg);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGlobalException(Exception ex) {
         Map<String, Object> response = new HashMap<>();
